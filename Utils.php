@@ -1,5 +1,5 @@
 <?php
-namespace Mixcode\Ui;
+namespace SLiMS\Ui;
 
 trait Utils
 {
