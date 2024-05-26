@@ -1,5 +1,5 @@
 <?php
-use Mixcode\Ui\Components\Base;
+use SLiMS\Ui\Components\Base;
 
 if (!function_exists('createComponent')) {
     function createComponent(string $name, array $properties = [])
