@@ -26,6 +26,7 @@ class Reportgrid extends Datagrid
         $this->filename = $name;
         $this->properties['editable'] = false;
         $this->properties['with_spreadsheet_export'] = true;
+        $this->attributes['id'] = 'reportList';
 
         // css
         $bootstrap = SWB . 'css/bootstrap.min.css';
@@ -151,6 +152,21 @@ class Reportgrid extends Datagrid
         }
 
         return $content;
+    }
+
+    public function inIframe(string $httpQuery = 'report')
+    {
+        if (isset($_REQUEST[$httpQuery])) {
+            exit($this);
+        }
+
+        return (string)createComponent('iframe', [
+            'id' => 'reportView',
+            'name' => 'reportView',
+            'src' => $this->setUrl([$httpQuery => 'true']),
+            'frameborder' => 0,
+            'style' => 'width: 100%; height: 500px;'
+        ]);
     }
 
     public function __toString()
