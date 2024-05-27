@@ -519,7 +519,7 @@ class Datagrid extends Table
         $direction = isset($_GET['dir']);
 
         if (isset($this->properties['grammar'][$this->driver]['pagination_with_order']) && count($this->sort) < 1 && !$direction) {
-            $this->setSort($this->encapsulate($this->cleanChar($this->countable_column)), 'asc');
+            $this->setSort($this->countable_column, 'asc');
         }
 
         if ($this->sort || $direction) {
@@ -605,7 +605,7 @@ class Datagrid extends Table
             if (in_array($value, $this->properties['invisible_column'])) continue;
 
             // set header as clear text if it available in unsortable list
-            if (in_array($value, $this->properties['unsortable_by_anchor'])) {
+            if ($this->editable === false || in_array($value, $this->properties['unsortable_by_anchor'])) {
                 $header[] = $value;
                 continue;
             }
@@ -774,29 +774,33 @@ class Datagrid extends Table
             $buttonName = 'delete';
         }
         
-        $actionButton = (string)createComponent('td')->setSlot(
-            (string)createComponent('input', [
-                'type' => 'hidden',
-                'name' => $buttonName,
-                'value' => 'yes'
-            ]) .
-            (string)createComponent('input', [
-                'class' => $buttonClass,
-                'type' => 'button',
-                'onclick' => '!chboxFormSubmit(\'' . $this->properties['editable_form']['name'] . '\', \'' . $question . '\', 1)',
-                'value' => $buttonValue
-            ]) . 
-            (string)createComponent('input', [
-                'class' => 'check-all button btn btn-default',
-                'type' => 'button',
-                'value' => __('Check All')
-            ]) .
-            (string)createComponent('input', [
-                'class' => 'uncheck-all button btn btn-default ml-1',
-                'type' => 'button',
-                'value' => __('Uncheck All')
-            ])
-        );
+        if ($this->editable) {
+            $actionButton = (string)createComponent('td')->setSlot(
+                (string)createComponent('input', [
+                    'type' => 'hidden',
+                    'name' => $buttonName,
+                    'value' => 'yes'
+                ]) .
+                (string)createComponent('input', [
+                    'class' => $buttonClass,
+                    'type' => 'button',
+                    'onclick' => '!chboxFormSubmit(\'' . $this->properties['editable_form']['name'] . '\', \'' . $question . '\', 1)',
+                    'value' => $buttonValue
+                ]) . 
+                (string)createComponent('input', [
+                    'class' => 'check-all button btn btn-default',
+                    'type' => 'button',
+                    'value' => __('Check All')
+                ]) .
+                (string)createComponent('input', [
+                    'class' => 'uncheck-all button btn btn-default ml-1',
+                    'type' => 'button',
+                    'value' => __('Uncheck All')
+                ])
+            );
+        } else {
+            $actionButton = (string)createComponent('td')->setAttribute('width', '50%');
+        }
 
         $pagiNation = '';
         if ($this->detail['total'] > $this->properties['limit']) {
@@ -898,12 +902,13 @@ class Datagrid extends Table
             }
 
             // set form
+            $actionBar = $this->setActionBar();
             if ($this->editable) {
                 $this->properties['editable_form']['action'] = $this->setUrl();
-                
-                $actionBar = $this->setActionBar();
                 $datagrid = createComponent('form', $this->properties['editable_form'])
                                 ->setSlot($actionBar . $datagrid . $actionBar);
+            } else {
+                $datagrid = $actionBar . $datagrid . $actionBar;
             }
 
             $output = (!isDev() ? $submitExec : $debug) . $searchInfo . ((string)$datagrid);
