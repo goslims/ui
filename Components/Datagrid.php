@@ -3,7 +3,7 @@
  * @author Drajat Hasan
  * @email [drajathasan20@mail.com]
  * @create date 2024-05-26 10:27:23
- * @modify date 2024-05-26 10:27:23
+ * @modify date 2024-05-28 06:03:24
  * @desc This is an Ui Component for SLiMS
  * with reusable method, PSR4 format etc.
  * Inspired from simbio datagrid created by Arie Nugraha.
@@ -803,7 +803,7 @@ class Datagrid extends Table
         }
 
         $pagiNation = '';
-        if ($this->detail['total'] > $this->properties['limit']) {
+        if ($this->detail['total'] > $this->properties['limit'] && !isset($this->properties['with_spreadsheet_export'])) {
             $pagiNation = (string)createComponent('td', ['class' => 'paging-area'])
                         ->setSlot((string)Pagination::create($this->setUrl(), $this->detail['total'], $this->properties['limit']));
         }

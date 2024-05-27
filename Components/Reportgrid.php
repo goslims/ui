@@ -26,7 +26,7 @@ class Reportgrid extends Datagrid
         $this->filename = $name;
         $this->properties['editable'] = false;
         $this->properties['with_spreadsheet_export'] = true;
-        $this->attributes['id'] = 'reportList';
+        $this->attributes['id'] = $name;
 
         // css
         $bootstrap = SWB . 'css/bootstrap.min.css';
