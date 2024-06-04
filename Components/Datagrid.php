@@ -3,7 +3,7 @@
  * @author Drajat Hasan
  * @email [drajathasan20@mail.com]
  * @create date 2024-05-26 10:27:23
- * @modify date 2024-05-28 06:03:24
+ * @modify date 2024-05-26 10:27:23
  * @desc This is an Ui Component for SLiMS
  * with reusable method, PSR4 format etc.
  * Inspired from simbio datagrid created by Arie Nugraha.
@@ -484,6 +484,8 @@ class Datagrid extends Table
      */
     protected function getData(bool $withLimit = true)
     {
+        $grammar = $this->properties['grammar'][$this->driver];
+
         // column processing
         $columns = implode(',', $this->columns);
 
@@ -518,13 +520,13 @@ class Datagrid extends Table
         // sorting data
         $direction = isset($_GET['dir']);
 
-        if (isset($this->properties['grammar'][$this->driver]['pagination_with_order']) && count($this->sort) < 1 && !$direction) {
+        if (isset($grammar['pagination_with_order']) && empty($this->sort) && !$direction) {
             $this->setSort($this->countable_column, 'asc');
         }
 
         if ($this->sort || $direction) {
             if ($direction) {
-                $this->setSort($this->encapsulate($this->cleanChar($_GET['field'])), $_GET['dir']);
+                $this->setSort($_GET['field'], $_GET['dir']);
             }
             $sql['order'] = 'order by ' . $this->sort;
         }
@@ -535,12 +537,12 @@ class Datagrid extends Table
             $sql['limit'] = str_replace(
                 ['{limit}','{offset}'], 
                 [((int)$this->limit),$offset], 
-                $this->properties['grammar'][$this->driver]['pagination_pattern']
+                $grammar['pagination_pattern']
             );
         }
 
         // set main query
-        $mainQuery = DB::query($rawMainQuery = implode(' ', $sql), $where['parameters']??[]);
+        $mainQuery = DB::query($rawMainQuery = implode(' ', $sql), $where['parameters']??[], $grammar['pdo_options']??[]);
         $mainQuery->setConnection($this->connection);
 
         if (!$withLimit) {
@@ -803,7 +805,7 @@ class Datagrid extends Table
         }
 
         $pagiNation = '';
-        if ($this->detail['total'] > $this->properties['limit'] && !isset($this->properties['with_spreadsheet_export'])) {
+        if ($this->detail['total'] > $this->properties['limit']) {
             $pagiNation = (string)createComponent('td', ['class' => 'paging-area'])
                         ->setSlot((string)Pagination::create($this->setUrl(), $this->detail['total'], $this->properties['limit']));
         }
